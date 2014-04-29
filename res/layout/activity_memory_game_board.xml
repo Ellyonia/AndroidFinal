@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    <GridView
+        android:id="@+id/gameBoard3x4"
+        />
+    <GridView
+        android:id="@+id/gameBoard4x4"
+        />
+    <GridView
+        android:id="@+id/gameBoard4x5"
+        />
+    <GridView
+        android:id="@+id/gameBoard4x6"
+        />
+    <GridView
+        android:id="@+id/gameBoard5x6"
+        />
+    <GridView
+        android:id="@+id/gameBoard6x6"
+        />
+    <GridView
+        android:id="@+id/gameBoard6x7"
+        />
+    <GridView
+        android:id="@+id/gameBoard6x8"
+        />
+    <GridView
+        android:id="@+id/gameBoard7x8"
+        />
+    <GridView
+        android:id="@+id/gameBoard8x8"
+        />
+    <GridView
+        android:id="@+id/gameBoard8x9"
+        />
+    <GridView
+        android:id="@+id/gameBoard9x10"
+        />
+
+</FrameLayout>

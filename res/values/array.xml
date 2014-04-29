@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="boardSizes">
+        <item>3x4</item>
+        <item>4x4</item>
+        <item>4x5</item>
+        <item>4x6</item>
+        <item>5x6</item>
+        <item>6x6</item>
+        <item>6x7</item>
+        <item>6x8</item>
+        <item>7x8</item>
+        <item>8x8</item>
+        <item>8x9</item>
+        <item>9x10</item>
+    </string-array>
+</resources>
