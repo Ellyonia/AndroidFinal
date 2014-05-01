@@ -5,13 +5,20 @@
         <item>4x4</item>
         <item>4x5</item>
         <item>4x6</item>
-        <item>5x6</item>
-        <item>6x6</item>
-        <item>6x7</item>
-        <item>6x8</item>
-        <item>7x8</item>
-        <item>8x8</item>
-        <item>8x9</item>
-        <item>9x10</item>
     </string-array>
+    
+    <array name="gamePieces">
+		<item>@drawable/bulbasaur</item>
+		<item>@drawable/charmander</item>
+		<item>@drawable/squirtle</item>
+		<item>@drawable/chickorita</item>
+		<item>@drawable/cyndaquil</item>
+		<item>@drawable/totadile</item>
+		<item>@drawable/treeko</item>
+		<item>@drawable/torchic</item>
+		<item>@drawable/mudkip</item>
+		<item>@drawable/turtwig</item>
+		<item>@drawable/chimchar</item>
+		<item>@drawable/piplup</item>
+</array>
 </resources>
