@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,7 +41,7 @@ public class MemoryGame extends Activity {
 		switch(gameSize)
 		{
 		case "3x4":
-			gameBoard.setNumColumns(3);
+			gameBoard.setNumColumns(4);
 			break;
 		case "4x4":
 			gameBoard.setNumColumns(4);
@@ -73,13 +74,13 @@ public class MemoryGame extends Activity {
 		    public int getCount() {
 		        switch(mGameCase){
 		        case 0:
-		        	return 6;
-		        case 1:
-		        	return 8;
-		        case 2:
-		        	return 10;
-		        case 3:
 		        	return 12;
+		        case 1:
+		        	return 16;
+		        case 2:
+		        	return 20;
+		        case 3:
+		        	return 24;
 		        }
 		        return -1;
 		    }
@@ -95,15 +96,39 @@ public class MemoryGame extends Activity {
 		    // create a new ImageView for each item referenced by the Adapter
 		    public View getView(int position, View convertView, ViewGroup parent) {
 		        ImageView imageView;
+		        DisplayMetrics metrics = new DisplayMetrics();
+		        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+
+		        int width = metrics.widthPixels;
+		        int height = metrics.heightPixels;
+		        if (mGameCase == 0)
+		        	height = height/4;
+		        else if (mGameCase ==1)
+		        	height = height /5;
+		        else if (mGameCase ==2)
+		        	height = height/6;
+		        else
+		        	height = height/7;
+		        
 		        if (convertView == null) {  // if it's not recycled, initialize some attributes
 		            imageView = new ImageView(mContext);
-		            imageView.setLayoutParams(new GridView.LayoutParams(85, 85));
-		            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+		            imageView.setLayoutParams(new GridView.LayoutParams(width/4, height));
+//		            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+//		            imageView.setPadding(8, 8, 8, 8);
+//		            imageView.setBackgroundColor(Color.BLACK);
 		        } else {
 		            imageView = (ImageView) convertView;
 		        }
-
-		        imageView.setImageDrawable(mGamePieces[position]);
+		        int uniqueCount = getCount()/2;
+		        Log.v("VAK",""+position);
+		        if (position >= uniqueCount)
+		        {
+		        	imageView.setImageDrawable(mGamePieces[position-uniqueCount]);
+		        }
+		        else
+		        {
+		        	imageView.setImageDrawable(mGamePieces[position]);
+		        }
 		        return imageView;
 		    }
 
