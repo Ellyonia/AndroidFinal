@@ -4,11 +4,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
@@ -18,6 +20,8 @@ public class MemoryGame extends Activity {
 
 	public static final String GAME_KEY = "iliekchocolatemilk";
 	int gameCase=0;
+	boolean isSecond = false;
+	ImageView previousView;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +32,7 @@ public class MemoryGame extends Activity {
 		String gameSize= sentIntent.getStringExtra(GAME_KEY);
 		Log.v("CAK",gameSize);
 		GridView gameBoard = (GridView) findViewById(R.id.gameBoard);
+		gameBoard.setBackgroundColor(Color.BLACK);
 		TypedArray icons = getResources().obtainTypedArray(R.array.gamePieces);
 		
 		Drawable[] drawables = new Drawable[icons.length()];
@@ -94,8 +99,8 @@ public class MemoryGame extends Activity {
 		    }
 
 		    // create a new ImageView for each item referenced by the Adapter
-		    public View getView(int position, View convertView, ViewGroup parent) {
-		        ImageView imageView;
+		    public View getView(final int position, View convertView, ViewGroup parent) {
+		        final ImageView imageView;
 		        DisplayMetrics metrics = new DisplayMetrics();
 		        getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
@@ -114,21 +119,46 @@ public class MemoryGame extends Activity {
 		            imageView = new ImageView(mContext);
 		            imageView.setLayoutParams(new GridView.LayoutParams(width/4, height));
 //		            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-//		            imageView.setPadding(8, 8, 8, 8);
-//		            imageView.setBackgroundColor(Color.BLACK);
+		            imageView.setBackgroundColor(Color.WHITE);
 		        } else {
 		            imageView = (ImageView) convertView;
 		        }
+		        
+		        imageView.setColorFilter(Color.WHITE);
 		        int uniqueCount = getCount()/2;
-		        Log.v("VAK",""+position);
+		        
+		        int alterAmount = 12-uniqueCount;
 		        if (position >= uniqueCount)
 		        {
-		        	imageView.setImageDrawable(mGamePieces[position-uniqueCount]);
+		        	imageView.setImageDrawable(mGamePieces[position+alterAmount]);
 		        }
 		        else
 		        {
 		        	imageView.setImageDrawable(mGamePieces[position]);
 		        }
+		        
+		        imageView.setOnClickListener(new OnClickListener(){
+
+					@Override
+					public void onClick(View v) {
+						Log.v("CAK",""+position);
+						if (!isSecond)
+						{
+							((ImageView) v).setColorFilter(null);
+							previousView = ((ImageView) v);
+							isSecond = true;
+						}
+						else
+						{
+							previousView.setColorFilter(Color.WHITE);
+							((ImageView) v).setColorFilter(Color.WHITE);
+							previousView = null;
+							isSecond = false;
+						}
+						//imageView.setColorFilter(null);
+					}
+		        	
+		        });
 		        return imageView;
 		    }
 

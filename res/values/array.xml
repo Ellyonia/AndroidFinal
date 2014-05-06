@@ -20,5 +20,17 @@
 		<item>@drawable/turtwig</item>
 		<item>@drawable/chimchar</item>
 		<item>@drawable/piplup</item>
+		<item>@drawable/bulbasaur2</item>
+		<item>@drawable/charmander2</item>
+		<item>@drawable/squirtle2</item>
+		<item>@drawable/chickorita2</item>
+		<item>@drawable/cyndaquil2</item>
+		<item>@drawable/totadile2</item>
+		<item>@drawable/treeko2</item>
+		<item>@drawable/torchic2</item>
+		<item>@drawable/mudkip2</item>
+		<item>@drawable/turtwig2</item>
+		<item>@drawable/chimchar2</item>
+		<item>@drawable/piplup2</item>
 </array>
 </resources>
