@@ -11,6 +11,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -33,11 +36,16 @@ public class MemoryGame extends Activity {
 	int pairsMatched = 0;
 	int uniqueCount;
 	Context mContext = this;
+	private Menu menu;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_memory_game_board);
+		
+		
+		
+		
 		
 		Intent sentIntent = getIntent();
 		String gameSize= sentIntent.getStringExtra(GAME_KEY);
@@ -265,4 +273,19 @@ public class MemoryGame extends Activity {
 			}
         	
         };
+        
+        
+        public boolean onCreateOptionsMenu(Menu menu) {
+            MenuInflater inflater = getMenuInflater();
+            inflater.inflate(R.menu.main_menu, menu);
+            return true;
+        }
+        
+        public boolean onOptionsItemSelected(MenuItem item) {
+        	
+          Toast.makeText(getBaseContext(), R.string.toast_title, 
+                         Toast.LENGTH_LONG).show();
+          return true;
+      }
+     
 }
