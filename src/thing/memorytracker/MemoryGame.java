@@ -47,16 +47,15 @@ public class MemoryGame extends Activity implements AnimationListener {
 	private boolean mShowingBack = false;
 	private Animation animation1;
     private Animation animation2;
-    ImageView currentView;
+    ImageView viewToAnimate;
     int currentPosition;
-	
+	boolean resetViews = false;
 	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_memory_game_board);
-		
 		
 		 animation1 = AnimationUtils.loadAnimation(this, R.animator.flip_left_start);
          animation1.setAnimationListener(this);
@@ -184,7 +183,7 @@ public class MemoryGame extends Activity implements AnimationListener {
 		        final ImageView imageView;
 		        DisplayMetrics metrics = new DisplayMetrics();
 		        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-		        currentPosition = position;
+		        //currentPosition = position;
 		        int width = metrics.widthPixels;
 		        int height = metrics.heightPixels;
 		        if (mGameCase == 0)
@@ -229,7 +228,7 @@ public class MemoryGame extends Activity implements AnimationListener {
 			public void start(ImageView v, int position) {
 				mPosition = position;
 				mView = v;
-				mView.postDelayed(this, 300);
+				mView.postDelayed(this, 1500);
 			}
 
 			@Override
@@ -250,10 +249,27 @@ public class MemoryGame extends Activity implements AnimationListener {
 				}
 				else
 				{
+					resetViews = true;
+//					SecondWait wait = new SecondWait();
+//					wait.start();
+					 Log.v("CAK",""+resetViews);
 					previousView.setOnClickListener(null);
 					previousView.setOnClickListener(myListner);
-					previousView.setColorFilter(Color.WHITE);
-					mView.setColorFilter(Color.WHITE);
+					//previousView.setColorFilter(Color.WHITE);
+					//mView.setColorFilter(Color.WHITE);
+					viewToAnimate = previousView;
+//					previousView.setImageDrawable(null);
+					viewToAnimate.clearAnimation();
+					viewToAnimate.setAnimation(animation1);
+					viewToAnimate.startAnimation(animation1);
+					previousView.setImageDrawable(null);
+					
+					
+		            viewToAnimate = mView;
+		            viewToAnimate.clearAnimation();
+		            viewToAnimate.setAnimation(animation1);
+		            viewToAnimate.startAnimation(animation1);
+//		            mView.setImageDrawable(null);
 					previousView = null;
 					isSecond = false;
 				}
@@ -262,29 +278,31 @@ public class MemoryGame extends Activity implements AnimationListener {
 		}
 		
         private final View.OnClickListener myListner = new OnClickListener(){
-
-        	
 			@Override
 			public void onClick(final View v) {
 				ViewGroup parent = (ViewGroup) v.getParent();
 				final int position = parent.indexOfChild(v);
 				if (!isSecond)
 				{
-					
+					resetViews = false;
+					currentPosition = position;
 					v.setOnClickListener(null);
-//					((ImageView) v).setColorFilter(null);
+					viewToAnimate = (ImageView)v;
 					((ImageView)v).clearAnimation();
 		            ((ImageView)v).setAnimation(animation1);
 		            ((ImageView)v).startAnimation(animation1);
-		            currentView = (ImageView)v;
+		            
 					previousView = ((ImageView) v);
 					isSecond = true;
 					previousLoc = position;
 				}
 				else if (isSecond)
 				{
-					((ImageView) v).setColorFilter(null);
-					
+					currentPosition = position;
+					viewToAnimate = (ImageView)v;
+					((ImageView)v).clearAnimation();
+		            ((ImageView)v).setAnimation(animation1);
+		            ((ImageView)v).startAnimation(animation1);
 					CameronWait mWait = new CameronWait();
 					
 					mWait.start((ImageView)v, position);
@@ -294,46 +312,33 @@ public class MemoryGame extends Activity implements AnimationListener {
 			}
         	
         };
-        
-        
-        public boolean onCreateOptionsMenu(Menu menu) {
-            MenuInflater inflater = getMenuInflater();
-            inflater.inflate(R.menu.main_menu, menu);
-            return true;
-        }
-        
-        public boolean onOptionsItemSelected(MenuItem item) {
-        	
-          Toast.makeText(getBaseContext(), R.string.toast_message, 
-                         Toast.LENGTH_LONG).show();
-          return true;
-        }
-        
-//        public void onClick(View v) {
-//            ((ImageView)v).clearAnimation();
-//            ((ImageView)v).setAnimation(animation1);
-//            ((ImageView)v).startAnimation(animation1);
-//            currentView = (ImageView)v;
-//      }
+       
+       
       @Override
       public void onAnimationEnd(Animation animation) {
+    	  Log.v("CAK",""+resetViews);
             if (animation==animation1) {
-                   if (mShowingBack) {
-                	   currentView.setBackgroundColor(Color.WHITE);
-                     } else {
+                   if (resetViews) 
+                   {
+                	   Log.v("CAK","Resetting");
+                	   viewToAnimate.setImageDrawable(null);
+                   } 
+                   else 
+                   {
                     	 if (currentPosition >= uniqueCount)
          		        {
-         		        	currentView.setImageDrawable(drawablesSecond[pictureOrder[currentPosition]]);
+         		        	viewToAnimate.setImageDrawable(drawablesSecond[pictureOrder[currentPosition]]);
          		        }
          		        else
          		        {
-         		        	currentView.setImageDrawable(drawablesFirst[pictureOrder[currentPosition]]);
+         		        	viewToAnimate.setImageDrawable(drawablesFirst[pictureOrder[currentPosition]]);
          		        }
-                     }
-                     currentView.clearAnimation();
-       currentView.setAnimation(animation2);
-       currentView.startAnimation(animation2);
-               } else {
+                   }
+                     viewToAnimate.clearAnimation();
+                     viewToAnimate.setAnimation(animation2);
+                     viewToAnimate.startAnimation(animation2);
+               } else 
+               {
                       mShowingBack=!mShowingBack;
                }
       }
@@ -343,7 +348,38 @@ public class MemoryGame extends Activity implements AnimationListener {
       }
       @Override
       public void onAnimationStart(Animation animation) {
-      // TODO Auto-generated method stub
+    	  
+      }
+      
+      
+      
+      public boolean onCreateOptionsMenu(Menu menu) {
+          MenuInflater inflater = getMenuInflater();
+          inflater.inflate(R.menu.main_menu, menu);
+          return true;
+      }
+      
+      public boolean onOptionsItemSelected(MenuItem item) {
+      	
+        Toast.makeText(getBaseContext(), R.string.toast_message, 
+                       Toast.LENGTH_LONG).show();
+        return true;
+      }
+      private class SecondWait implements Runnable
+      {
+    	  public void start()
+    	  {
+    		View v = findViewById(R.id.gameBoard);
+    		v.postDelayed(this, 1000);
+    	  }
+    	  
+    	  
+		@Override
+		public void run() {
+			// TODO Auto-generated method stub
+			
+		}
+    	  
       }
      
 }
