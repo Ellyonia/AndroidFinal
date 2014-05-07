@@ -4,7 +4,6 @@ import java.util.Arrays;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -13,7 +12,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -31,25 +29,30 @@ import android.widget.Toast;
 @SuppressLint("ValidFragment")
 public class MemoryGame extends Activity implements AnimationListener {
 
-//	private CameronWait mWait = new CameronWait();
 	public static final String GAME_KEY = "iliekchocolatemilk";
+	Context mContext = this;
+	
+	// Main Method / Adapter Methods
 	int gameCase=0;
-	boolean isSecond = false;
-	ImageView previousView;
-	int previousLoc;
 	Drawable[] drawablesFirst;
 	Drawable[] drawablesSecond;
 	int[] pictureOrder;
 	int pairsMatched = 0;
+	
+	// On Click Varialbes
 	int uniqueCount;
-	Context mContext = this;
-	private Menu menu;
-	private boolean mShowingBack = false;
+	boolean isSecond = false;
+	ImageView previousView;
+	int previousLoc;
+	int currentPosition;
+	
+	
+	// Animation Variables
 	private Animation animation1;
     private Animation animation2;
+    boolean resetViews = false;
     ImageView viewToAnimate;
-    int currentPosition;
-	boolean resetViews = false;
+    
 	
 	
 	@Override
@@ -65,9 +68,11 @@ public class MemoryGame extends Activity implements AnimationListener {
 		
 		Intent sentIntent = getIntent();
 		String gameSize= sentIntent.getStringExtra(GAME_KEY);
-		Log.v("CAK",gameSize);
+		
+		
 		GridView gameBoard = (GridView) findViewById(R.id.gameBoard);
 		gameBoard.setBackgroundColor(Color.BLACK);
+		
 		TypedArray icons = getResources().obtainTypedArray(R.array.gamePieces);
 		
 		Drawable[] drawables = new Drawable[icons.length()];
@@ -124,6 +129,7 @@ public class MemoryGame extends Activity implements AnimationListener {
 		int randSwap2;
 		int helper1;
 		int drawableLength = drawablesFirst.length;
+		
 		for (int i = 0; i < 5; i++)
 		{
 			for (int j = 0; j < 12; j++)
@@ -136,24 +142,25 @@ public class MemoryGame extends Activity implements AnimationListener {
 			}
 		}
 		
-		ImageAdapter mAdapter = new ImageAdapter(this,gameCase, drawablesFirst,drawablesSecond,pictureOrder);
+		ImageAdapter mAdapter = new ImageAdapter(this,gameCase);
 		gameBoard.setAdapter(mAdapter);
 		
 	}
+		//*****************************************************
+		//*
+		//* Beginning of Helper Classes
+		//*
+		//*****************************************************
 		
+		// Adapter for the GridView
 		class ImageAdapter extends BaseAdapter {
 		    private Context mContext;
 		    private int mGameCase;
-		    private Drawable[] mGamePieces;
-		    private Drawable[] mGamePiecesPt2;
-		    private int[] mPictureOrder;
 
-		    public ImageAdapter(Context c, int gameCase, Drawable[] pieces,Drawable[] piecesPt2,int[] orderForPictures) {
+		    public ImageAdapter(Context c, int gameCase) {
 		        mContext = c;
 		        mGameCase = gameCase;
-		        mGamePieces = pieces;
-		        mGamePiecesPt2 = piecesPt2;
-		        mPictureOrder = orderForPictures;
+
 		    }
 
 		    public int getCount() {
@@ -195,7 +202,8 @@ public class MemoryGame extends Activity implements AnimationListener {
 		        else
 		        	height = height/7;
 		        
-		        if (convertView == null) {  // if it's not recycled, initialize some attributes
+		        if (convertView == null) 
+		        {  // if it's not recycled, initialize some attributes
 		            imageView = new ImageView(mContext);
 		            imageView.setLayoutParams(new GridView.LayoutParams(width/4, height));
 
@@ -204,16 +212,7 @@ public class MemoryGame extends Activity implements AnimationListener {
 		            imageView = (ImageView) convertView;
 		        }
 		        
-		        //imageView.setColorFilter(Color.WHITE);
 		        uniqueCount = getCount()/2;
-//		        if (position >= uniqueCount)
-//		        {
-//		        	//imageView.setImageDrawable(mGamePiecesPt2[mPictureOrder[position]]);
-//		        }
-//		        else
-//		        {
-//		        	//imageView.setImageDrawable(mGamePieces[mPictureOrder[position]]);
-//		        }
 
 		        imageView.setOnClickListener(myListner);
 		        return imageView;
@@ -221,6 +220,7 @@ public class MemoryGame extends Activity implements AnimationListener {
 
 		}		
 		
+		// Wait method to assist with timing automation of the Game.
 		private class CameronWait implements Runnable {
 			
 			private int mPosition;
@@ -228,7 +228,7 @@ public class MemoryGame extends Activity implements AnimationListener {
 			public void start(ImageView v, int position) {
 				mPosition = position;
 				mView = v;
-				mView.postDelayed(this, 1500);
+				mView.postDelayed(this, 1100);
 			}
 
 			@Override
@@ -250,15 +250,13 @@ public class MemoryGame extends Activity implements AnimationListener {
 				else
 				{
 					resetViews = true;
-//					SecondWait wait = new SecondWait();
-//					wait.start();
+					
 					 Log.v("CAK",""+resetViews);
 					previousView.setOnClickListener(null);
 					previousView.setOnClickListener(myListner);
-					//previousView.setColorFilter(Color.WHITE);
-					//mView.setColorFilter(Color.WHITE);
+					
 					viewToAnimate = previousView;
-//					previousView.setImageDrawable(null);
+					
 					viewToAnimate.clearAnimation();
 					viewToAnimate.setAnimation(animation1);
 					viewToAnimate.startAnimation(animation1);
@@ -269,7 +267,7 @@ public class MemoryGame extends Activity implements AnimationListener {
 		            viewToAnimate.clearAnimation();
 		            viewToAnimate.setAnimation(animation1);
 		            viewToAnimate.startAnimation(animation1);
-//		            mView.setImageDrawable(null);
+		            
 					previousView = null;
 					isSecond = false;
 				}
@@ -277,6 +275,8 @@ public class MemoryGame extends Activity implements AnimationListener {
 			
 		}
 		
+		
+		// ImageView on Click listener
         private final View.OnClickListener myListner = new OnClickListener(){
 			@Override
 			public void onClick(final View v) {
@@ -286,8 +286,11 @@ public class MemoryGame extends Activity implements AnimationListener {
 				{
 					resetViews = false;
 					currentPosition = position;
+					
 					v.setOnClickListener(null);
+					
 					viewToAnimate = (ImageView)v;
+					
 					((ImageView)v).clearAnimation();
 		            ((ImageView)v).setAnimation(animation1);
 		            ((ImageView)v).startAnimation(animation1);
@@ -300,20 +303,20 @@ public class MemoryGame extends Activity implements AnimationListener {
 				{
 					currentPosition = position;
 					viewToAnimate = (ImageView)v;
+					
 					((ImageView)v).clearAnimation();
 		            ((ImageView)v).setAnimation(animation1);
 		            ((ImageView)v).startAnimation(animation1);
+		            
 					CameronWait mWait = new CameronWait();
 					
 					mWait.start((ImageView)v, position);
-					
-					
 				}	
 			}
-        	
         };
-       
-       
+        
+        
+      // Animation Methods.
       @Override
       public void onAnimationEnd(Animation animation) {
     	  Log.v("CAK",""+resetViews);
@@ -339,7 +342,6 @@ public class MemoryGame extends Activity implements AnimationListener {
                      viewToAnimate.startAnimation(animation2);
                } else 
                {
-                      mShowingBack=!mShowingBack;
                }
       }
       @Override
@@ -352,7 +354,7 @@ public class MemoryGame extends Activity implements AnimationListener {
       }
       
       
-      
+      // Methods for the Menu popup.
       public boolean onCreateOptionsMenu(Menu menu) {
           MenuInflater inflater = getMenuInflater();
           inflater.inflate(R.menu.main_menu, menu);
@@ -364,22 +366,6 @@ public class MemoryGame extends Activity implements AnimationListener {
         Toast.makeText(getBaseContext(), R.string.toast_message, 
                        Toast.LENGTH_LONG).show();
         return true;
-      }
-      private class SecondWait implements Runnable
-      {
-    	  public void start()
-    	  {
-    		View v = findViewById(R.id.gameBoard);
-    		v.postDelayed(this, 1000);
-    	  }
-    	  
-    	  
-		@Override
-		public void run() {
-			// TODO Auto-generated method stub
-			
-		}
-    	  
       }
      
 }
