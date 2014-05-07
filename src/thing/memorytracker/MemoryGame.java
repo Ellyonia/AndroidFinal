@@ -2,7 +2,9 @@ package thing.memorytracker;
 
 import java.util.Arrays;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -11,18 +13,23 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.Animation.AnimationListener;
+import android.view.animation.AnimationUtils;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-public class MemoryGame extends Activity {
+@SuppressLint("ValidFragment")
+public class MemoryGame extends Activity implements AnimationListener {
 
 //	private CameronWait mWait = new CameronWait();
 	public static final String GAME_KEY = "iliekchocolatemilk";
@@ -37,6 +44,13 @@ public class MemoryGame extends Activity {
 	int uniqueCount;
 	Context mContext = this;
 	private Menu menu;
+	private boolean mShowingBack = false;
+	private Animation animation1;
+    private Animation animation2;
+    ImageView currentView;
+    int currentPosition;
+	
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +58,10 @@ public class MemoryGame extends Activity {
 		setContentView(R.layout.activity_memory_game_board);
 		
 		
-		
+		 animation1 = AnimationUtils.loadAnimation(this, R.animator.flip_left_start);
+         animation1.setAnimationListener(this);
+         animation2 = AnimationUtils.loadAnimation(this, R.animator.flip_left_end);
+         animation2.setAnimationListener(this);
 		
 		
 		Intent sentIntent = getIntent();
@@ -122,6 +139,7 @@ public class MemoryGame extends Activity {
 		
 		ImageAdapter mAdapter = new ImageAdapter(this,gameCase, drawablesFirst,drawablesSecond,pictureOrder);
 		gameBoard.setAdapter(mAdapter);
+		
 	}
 		
 		class ImageAdapter extends BaseAdapter {
@@ -166,7 +184,7 @@ public class MemoryGame extends Activity {
 		        final ImageView imageView;
 		        DisplayMetrics metrics = new DisplayMetrics();
 		        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-
+		        currentPosition = position;
 		        int width = metrics.widthPixels;
 		        int height = metrics.heightPixels;
 		        if (mGameCase == 0)
@@ -187,17 +205,16 @@ public class MemoryGame extends Activity {
 		            imageView = (ImageView) convertView;
 		        }
 		        
-		        imageView.setColorFilter(Color.WHITE);
+		        //imageView.setColorFilter(Color.WHITE);
 		        uniqueCount = getCount()/2;
-		        
-		        if (position >= uniqueCount)
-		        {
-		        	imageView.setImageDrawable(mGamePiecesPt2[mPictureOrder[position]]);
-		        }
-		        else
-		        {
-		        	imageView.setImageDrawable(mGamePieces[mPictureOrder[position]]);
-		        }
+//		        if (position >= uniqueCount)
+//		        {
+//		        	//imageView.setImageDrawable(mGamePiecesPt2[mPictureOrder[position]]);
+//		        }
+//		        else
+//		        {
+//		        	//imageView.setImageDrawable(mGamePieces[mPictureOrder[position]]);
+//		        }
 
 		        imageView.setOnClickListener(myListner);
 		        return imageView;
@@ -255,7 +272,11 @@ public class MemoryGame extends Activity {
 				{
 					
 					v.setOnClickListener(null);
-					((ImageView) v).setColorFilter(null);
+//					((ImageView) v).setColorFilter(null);
+					((ImageView)v).clearAnimation();
+		            ((ImageView)v).setAnimation(animation1);
+		            ((ImageView)v).startAnimation(animation1);
+		            currentView = (ImageView)v;
 					previousView = ((ImageView) v);
 					isSecond = true;
 					previousLoc = position;
@@ -269,7 +290,7 @@ public class MemoryGame extends Activity {
 					mWait.start((ImageView)v, position);
 					
 					
-				}
+				}	
 			}
         	
         };
@@ -286,6 +307,43 @@ public class MemoryGame extends Activity {
           Toast.makeText(getBaseContext(), R.string.toast_message, 
                          Toast.LENGTH_LONG).show();
           return true;
+        }
+        
+//        public void onClick(View v) {
+//            ((ImageView)v).clearAnimation();
+//            ((ImageView)v).setAnimation(animation1);
+//            ((ImageView)v).startAnimation(animation1);
+//            currentView = (ImageView)v;
+//      }
+      @Override
+      public void onAnimationEnd(Animation animation) {
+            if (animation==animation1) {
+                   if (mShowingBack) {
+                	   currentView.setBackgroundColor(Color.WHITE);
+                     } else {
+                    	 if (currentPosition >= uniqueCount)
+         		        {
+         		        	currentView.setImageDrawable(drawablesSecond[pictureOrder[currentPosition]]);
+         		        }
+         		        else
+         		        {
+         		        	currentView.setImageDrawable(drawablesFirst[pictureOrder[currentPosition]]);
+         		        }
+                     }
+                     currentView.clearAnimation();
+       currentView.setAnimation(animation2);
+       currentView.startAnimation(animation2);
+               } else {
+                      mShowingBack=!mShowingBack;
+               }
+      }
+      @Override
+      public void onAnimationRepeat(Animation animation) {
+             // TODO Auto-generated method stub
+      }
+      @Override
+      public void onAnimationStart(Animation animation) {
+      // TODO Auto-generated method stub
       }
      
 }
