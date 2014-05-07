@@ -25,9 +25,10 @@ public class MemoryGame extends Activity {
 	int gameCase=0;
 	boolean isSecond = false;
 	ImageView previousView;
-	int previousLoc = -1;
+	int previousLoc;
 	Drawable[] drawablesFirst;
 	Drawable[] drawablesSecond;
+	int[] pictureOrder;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +49,7 @@ public class MemoryGame extends Activity {
 		}
 		icons.recycle();
 		
-		TypedArray iconsPt2 = getResources().obtainTypedArray(R.array.gamePiecesPt2);
+		TypedArray iconsPt2 = getResources().obtainTypedArray(R.array.gamePieces);
 		
 		Drawable[] drawablesPt2 = new Drawable[iconsPt2.length()];
 		for (int i = 0; i < iconsPt2.length(); i++) 
@@ -66,33 +67,34 @@ public class MemoryGame extends Activity {
 			gameBoard.setNumColumns(4);
 			drawablesFirst = Arrays.copyOfRange(drawables, 0, 6);
 			drawablesSecond = Arrays.copyOfRange(drawablesPt2, 0, 6);
+			pictureOrder = new int[]{0,1,2,3,4,5,0,1,2,3,4,5};
 			break;
 		case "4x4":
 			gameBoard.setNumColumns(4);
 			gameCase = 1;
 			drawablesFirst = Arrays.copyOfRange(drawables, 0, 8);
 			drawablesSecond = Arrays.copyOfRange(drawablesPt2, 0, 8);
+			pictureOrder = new int[]{0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7};
 			break;
 		case "4x5":
 			gameBoard.setNumColumns(4);
 			gameCase = 2;
-			drawablesFirst = Arrays.copyOfRange(drawables, 0, 11);
-			drawablesSecond = Arrays.copyOfRange(drawablesPt2, 0, 11);
+			drawablesFirst = Arrays.copyOfRange(drawables, 0, 10);
+			drawablesSecond = Arrays.copyOfRange(drawablesPt2, 0, 10);
+			pictureOrder = new int[]{0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9};
 			break;
 		case "4x6":
 			gameBoard.setNumColumns(4);
 			gameCase = 3;
 			drawablesFirst = drawables;
 			drawablesSecond = drawablesPt2;
+			pictureOrder = new int[]{0,1,2,3,4,5,6,7,8,9,10,11,0,1,2,3,4,5,6,7,8,9,10,11};
 			break;
 		}//End of Switch Case
 		
 		int randSwap1;
 		int randSwap2;
-		int randSwap3;
-		int randSwap4;
-		Drawable helper1;
-		Drawable helper2;
+		int helper1;
 		int drawableLength = drawablesFirst.length;
 		for (int i = 0; i < 5; i++)
 		{
@@ -100,18 +102,13 @@ public class MemoryGame extends Activity {
 			{
 				randSwap1 =(int)(Math.random() * drawableLength);
 				randSwap2 = (int)(Math.random()*drawableLength);
-				randSwap3 =(int)(Math.random() * drawableLength);
-				randSwap4 = (int)(Math.random()*drawableLength);
-				helper1 = drawablesFirst[randSwap1];
-				helper2 = drawablesSecond[randSwap3];
-				drawablesFirst[randSwap1] = drawablesFirst[randSwap2];
-				drawablesSecond[randSwap3] = drawablesSecond[randSwap4];
-				drawablesFirst[randSwap2] = helper1;
-				drawablesSecond[randSwap3] = helper2;
+				helper1 = pictureOrder[randSwap1];
+				pictureOrder[randSwap1] = pictureOrder[randSwap2];
+				pictureOrder[randSwap2] = helper1;
 			}
 		}
 		
-		ImageAdapter mAdapter = new ImageAdapter(this,gameCase, drawablesFirst,drawablesSecond);
+		ImageAdapter mAdapter = new ImageAdapter(this,gameCase, drawablesFirst,drawablesSecond,pictureOrder);
 		gameBoard.setAdapter(mAdapter);
 	}
 		
@@ -120,12 +117,14 @@ public class MemoryGame extends Activity {
 		    private int mGameCase;
 		    private Drawable[] mGamePieces;
 		    private Drawable[] mGamePiecesPt2;
+		    private int[] mPictureOrder;
 
-		    public ImageAdapter(Context c, int gameCase, Drawable[] pieces,Drawable[] piecesPt2) {
+		    public ImageAdapter(Context c, int gameCase, Drawable[] pieces,Drawable[] piecesPt2,int[] orderForPictures) {
 		        mContext = c;
 		        mGameCase = gameCase;
 		        mGamePieces = pieces;
 		        mGamePiecesPt2 = piecesPt2;
+		        mPictureOrder = orderForPictures;
 		    }
 
 		    public int getCount() {
@@ -170,7 +169,7 @@ public class MemoryGame extends Activity {
 		        if (convertView == null) {  // if it's not recycled, initialize some attributes
 		            imageView = new ImageView(mContext);
 		            imageView.setLayoutParams(new GridView.LayoutParams(width/4, height));
-//		            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+
 		            imageView.setBackgroundColor(Color.WHITE);
 		        } else {
 		            imageView = (ImageView) convertView;
@@ -181,61 +180,79 @@ public class MemoryGame extends Activity {
 		        
 		        if (position >= uniqueCount)
 		        {
-		        	imageView.setImageDrawable(mGamePiecesPt2[position-uniqueCount]);
+		        	imageView.setImageDrawable(mGamePiecesPt2[mPictureOrder[position]]);
 		        }
 		        else
 		        {
-		        	imageView.setImageDrawable(mGamePieces[position]);
+		        	imageView.setImageDrawable(mGamePieces[mPictureOrder[position]]);
 		        }
-		        
-		        imageView.setOnClickListener(new OnClickListener(){
 
-					@Override
-					public void onClick(final View v) {
-						if (!isSecond)
-						{
-							((ImageView) v).setColorFilter(null);
-							previousView = ((ImageView) v);
-							isSecond = true;
-							previousLoc = position;
-						}
-						else if (isSecond)
-						{
-							((ImageView) v).setColorFilter(null);
-							class CameronWait implements Runnable {
-
-								@Override
-								public void run() {
-									int currentLoc = position - uniqueCount;
-									if (currentLoc == previousLoc)
-									{
-										previousView.setOnClickListener(null);
-										previousView = null;
-										isSecond = false;
-										v.setOnClickListener(null);
-									}
-									else
-									{
-										previousView.setColorFilter(Color.WHITE);
-										((ImageView)v).setColorFilter(Color.WHITE);
-										previousView = null;
-										isSecond = false;
-									}
-								}
-								
-							}
-							CameronWait mWait = new CameronWait();
-							v.postDelayed(mWait, 1000);
-							
-							
-						}
-					}
-		        	
-		        });
+		        imageView.setOnClickListener(myListner);
 		        return imageView;
 		    }
 
-		    // references to our images
+		}		
+		
+		private class CameronWait implements Runnable {
+			
+			private int mPosition;
+			private ImageView mView;
+			public void start(ImageView v, int position) {
+				mPosition = position;
+				mView = v;
+				mView.postDelayed(this, 300);
+			}
+
+			@Override
+			public void run() {
+				int currentPosition = mPosition;
+				if (pictureOrder[currentPosition] == pictureOrder[previousLoc])
+				{
+					previousView.setOnClickListener(null);
+					previousView = null;
+					isSecond = false;
+					mView.setOnClickListener(null);
+				}
+				else
+				{
+					previousView.setOnClickListener(null);
+					previousView.setOnClickListener(myListner);
+					previousView.setColorFilter(Color.WHITE);
+					mView.setColorFilter(Color.WHITE);
+					previousView = null;
+					isSecond = false;
+				}
+			}
+			
 		}
 		
+        private final View.OnClickListener myListner = new OnClickListener(){
+
+        	
+			@Override
+			public void onClick(final View v) {
+				ViewGroup parent = (ViewGroup) v.getParent();
+				final int position = parent.indexOfChild(v);
+				if (!isSecond)
+				{
+					
+					v.setOnClickListener(null);
+					((ImageView) v).setColorFilter(null);
+					previousView = ((ImageView) v);
+					isSecond = true;
+					previousLoc = position;
+				}
+				else if (isSecond)
+				{
+					((ImageView) v).setColorFilter(null);
+					
+					CameronWait mWait = new CameronWait();
+					
+					mWait.start((ImageView)v, position);
+					
+					
+				}
+			}
+        	
+        };
 }
