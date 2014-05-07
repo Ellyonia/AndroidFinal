@@ -283,7 +283,7 @@ public class MemoryGame extends Activity {
         
         public boolean onOptionsItemSelected(MenuItem item) {
         	
-          Toast.makeText(getBaseContext(), R.string.toast_title, 
+          Toast.makeText(getBaseContext(), R.string.toast_message, 
                          Toast.LENGTH_LONG).show();
           return true;
       }
