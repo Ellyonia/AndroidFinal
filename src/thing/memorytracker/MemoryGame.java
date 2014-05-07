@@ -1,5 +1,7 @@
 package thing.memorytracker;
 
+import java.util.Arrays;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -18,10 +20,14 @@ import android.widget.ImageView;
 
 public class MemoryGame extends Activity {
 
+//	private CameronWait mWait = new CameronWait();
 	public static final String GAME_KEY = "iliekchocolatemilk";
 	int gameCase=0;
 	boolean isSecond = false;
 	ImageView previousView;
+	int previousLoc = -1;
+	Drawable[] drawablesFirst;
+	Drawable[] drawablesSecond;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,26 +48,70 @@ public class MemoryGame extends Activity {
 		}
 		icons.recycle();
 		
+		TypedArray iconsPt2 = getResources().obtainTypedArray(R.array.gamePiecesPt2);
+		
+		Drawable[] drawablesPt2 = new Drawable[iconsPt2.length()];
+		for (int i = 0; i < iconsPt2.length(); i++) 
+		{
+			drawablesPt2[i] = iconsPt2.getDrawable(i);
+		}
+		iconsPt2.recycle();
+	
+		
+		
 		
 		switch(gameSize)
 		{
 		case "3x4":
 			gameBoard.setNumColumns(4);
+			drawablesFirst = Arrays.copyOfRange(drawables, 0, 6);
+			drawablesSecond = Arrays.copyOfRange(drawablesPt2, 0, 6);
 			break;
 		case "4x4":
 			gameBoard.setNumColumns(4);
 			gameCase = 1;
+			drawablesFirst = Arrays.copyOfRange(drawables, 0, 8);
+			drawablesSecond = Arrays.copyOfRange(drawablesPt2, 0, 8);
 			break;
 		case "4x5":
 			gameBoard.setNumColumns(4);
 			gameCase = 2;
+			drawablesFirst = Arrays.copyOfRange(drawables, 0, 11);
+			drawablesSecond = Arrays.copyOfRange(drawablesPt2, 0, 11);
 			break;
 		case "4x6":
 			gameBoard.setNumColumns(4);
 			gameCase = 3;
+			drawablesFirst = drawables;
+			drawablesSecond = drawablesPt2;
 			break;
 		}//End of Switch Case
-		ImageAdapter mAdapter = new ImageAdapter(this,gameCase, drawables);
+		
+		int randSwap1;
+		int randSwap2;
+		int randSwap3;
+		int randSwap4;
+		Drawable helper1;
+		Drawable helper2;
+		int drawableLength = drawablesFirst.length;
+		for (int i = 0; i < 5; i++)
+		{
+			for (int j = 0; j < 12; j++)
+			{
+				randSwap1 =(int)(Math.random() * drawableLength);
+				randSwap2 = (int)(Math.random()*drawableLength);
+				randSwap3 =(int)(Math.random() * drawableLength);
+				randSwap4 = (int)(Math.random()*drawableLength);
+				helper1 = drawablesFirst[randSwap1];
+				helper2 = drawablesSecond[randSwap3];
+				drawablesFirst[randSwap1] = drawablesFirst[randSwap2];
+				drawablesSecond[randSwap3] = drawablesSecond[randSwap4];
+				drawablesFirst[randSwap2] = helper1;
+				drawablesSecond[randSwap3] = helper2;
+			}
+		}
+		
+		ImageAdapter mAdapter = new ImageAdapter(this,gameCase, drawablesFirst,drawablesSecond);
 		gameBoard.setAdapter(mAdapter);
 	}
 		
@@ -69,11 +119,13 @@ public class MemoryGame extends Activity {
 		    private Context mContext;
 		    private int mGameCase;
 		    private Drawable[] mGamePieces;
+		    private Drawable[] mGamePiecesPt2;
 
-		    public ImageAdapter(Context c, int gameCase, Drawable[] pieces) {
+		    public ImageAdapter(Context c, int gameCase, Drawable[] pieces,Drawable[] piecesPt2) {
 		        mContext = c;
 		        mGameCase = gameCase;
 		        mGamePieces = pieces;
+		        mGamePiecesPt2 = piecesPt2;
 		    }
 
 		    public int getCount() {
@@ -125,12 +177,11 @@ public class MemoryGame extends Activity {
 		        }
 		        
 		        imageView.setColorFilter(Color.WHITE);
-		        int uniqueCount = getCount()/2;
+		        final int uniqueCount = getCount()/2;
 		        
-		        int alterAmount = 12-uniqueCount;
 		        if (position >= uniqueCount)
 		        {
-		        	imageView.setImageDrawable(mGamePieces[position+alterAmount]);
+		        	imageView.setImageDrawable(mGamePiecesPt2[position-uniqueCount]);
 		        }
 		        else
 		        {
@@ -140,22 +191,44 @@ public class MemoryGame extends Activity {
 		        imageView.setOnClickListener(new OnClickListener(){
 
 					@Override
-					public void onClick(View v) {
-						Log.v("CAK",""+position);
+					public void onClick(final View v) {
 						if (!isSecond)
 						{
 							((ImageView) v).setColorFilter(null);
 							previousView = ((ImageView) v);
 							isSecond = true;
+							previousLoc = position;
 						}
-						else
+						else if (isSecond)
 						{
-							previousView.setColorFilter(Color.WHITE);
-							((ImageView) v).setColorFilter(Color.WHITE);
-							previousView = null;
-							isSecond = false;
+							((ImageView) v).setColorFilter(null);
+							class CameronWait implements Runnable {
+
+								@Override
+								public void run() {
+									int currentLoc = position - uniqueCount;
+									if (currentLoc == previousLoc)
+									{
+										previousView.setOnClickListener(null);
+										previousView = null;
+										isSecond = false;
+										v.setOnClickListener(null);
+									}
+									else
+									{
+										previousView.setColorFilter(Color.WHITE);
+										((ImageView)v).setColorFilter(Color.WHITE);
+										previousView = null;
+										isSecond = false;
+									}
+								}
+								
+							}
+							CameronWait mWait = new CameronWait();
+							v.postDelayed(mWait, 1000);
+							
+							
 						}
-						//imageView.setColorFilter(null);
 					}
 		        	
 		        });
@@ -164,4 +237,5 @@ public class MemoryGame extends Activity {
 
 		    // references to our images
 		}
+		
 }
