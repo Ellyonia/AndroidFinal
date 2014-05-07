@@ -17,6 +17,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 public class MemoryGame extends Activity {
 
@@ -29,6 +30,9 @@ public class MemoryGame extends Activity {
 	Drawable[] drawablesFirst;
 	Drawable[] drawablesSecond;
 	int[] pictureOrder;
+	int pairsMatched = 0;
+	int uniqueCount;
+	Context mContext = this;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -176,7 +180,7 @@ public class MemoryGame extends Activity {
 		        }
 		        
 		        imageView.setColorFilter(Color.WHITE);
-		        final int uniqueCount = getCount()/2;
+		        uniqueCount = getCount()/2;
 		        
 		        if (position >= uniqueCount)
 		        {
@@ -212,6 +216,12 @@ public class MemoryGame extends Activity {
 					previousView = null;
 					isSecond = false;
 					mView.setOnClickListener(null);
+					pairsMatched++;
+					if (pairsMatched == uniqueCount)
+					{
+						Toast toast = Toast.makeText(mContext, "You Win!",Toast.LENGTH_SHORT);
+						toast.show();
+					}
 				}
 				else
 				{
