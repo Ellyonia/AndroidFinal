@@ -39,7 +39,7 @@ public class MemoryGame extends Activity implements AnimationListener {
 	int[] pictureOrder;
 	int pairsMatched = 0;
 	
-	// On Click Varialbes
+	// On Click Variables
 	int uniqueCount;
 	boolean isSecond = false;
 	ImageView previousView;
@@ -60,12 +60,13 @@ public class MemoryGame extends Activity implements AnimationListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_memory_game_board);
 		
+		// Set up the 2 different animations that will happen.
 		 animation1 = AnimationUtils.loadAnimation(this, R.animator.flip_left_start);
          animation1.setAnimationListener(this);
          animation2 = AnimationUtils.loadAnimation(this, R.animator.flip_left_end);
          animation2.setAnimationListener(this);
 		
-		
+		// Recieve intent.
 		Intent sentIntent = getIntent();
 		String gameSize= sentIntent.getStringExtra(GAME_KEY);
 		
@@ -73,6 +74,8 @@ public class MemoryGame extends Activity implements AnimationListener {
 		GridView gameBoard = (GridView) findViewById(R.id.gameBoard);
 		gameBoard.setBackgroundColor(Color.BLACK);
 		
+		
+		//Creates the First set of images to be used.
 		TypedArray icons = getResources().obtainTypedArray(R.array.gamePieces);
 		
 		Drawable[] drawables = new Drawable[icons.length()];
@@ -82,6 +85,8 @@ public class MemoryGame extends Activity implements AnimationListener {
 		}
 		icons.recycle();
 		
+		
+		// Creates the second set of Images to be used.
 		TypedArray iconsPt2 = getResources().obtainTypedArray(R.array.gamePieces);
 		
 		Drawable[] drawablesPt2 = new Drawable[iconsPt2.length()];
@@ -93,7 +98,8 @@ public class MemoryGame extends Activity implements AnimationListener {
 	
 		
 		
-		
+		// Switch case for initializing the parameters for the game 
+		// depending on the size chosen.
 		switch(gameSize)
 		{
 		case "3x4":
@@ -130,6 +136,7 @@ public class MemoryGame extends Activity implements AnimationListener {
 		int helper1;
 		int drawableLength = drawablesFirst.length;
 		
+		// For statements to randomize the ordering of the pictures in the Grid.
 		for (int i = 0; i < 5; i++)
 		{
 			for (int j = 0; j < 12; j++)
@@ -188,9 +195,10 @@ public class MemoryGame extends Activity implements AnimationListener {
 		    // create a new ImageView for each item referenced by the Adapter
 		    public View getView(final int position, View convertView, ViewGroup parent) {
 		        final ImageView imageView;
+		        
+		        // Set up for determining the Size of the Image Views
 		        DisplayMetrics metrics = new DisplayMetrics();
 		        getWindowManager().getDefaultDisplay().getMetrics(metrics);
-		        //currentPosition = position;
 		        int width = metrics.widthPixels;
 		        int height = metrics.heightPixels;
 		        if (mGameCase == 0)
@@ -234,6 +242,8 @@ public class MemoryGame extends Activity implements AnimationListener {
 			@Override
 			public void run() {
 				int currentPosition = mPosition;
+				
+				// If Statement if te 2 clicked images match
 				if (pictureOrder[currentPosition] == pictureOrder[previousLoc])
 				{
 					previousView.setOnClickListener(null);
@@ -241,13 +251,15 @@ public class MemoryGame extends Activity implements AnimationListener {
 					isSecond = false;
 					mView.setOnClickListener(null);
 					pairsMatched++;
+					
+					// If statement to check if all tiles have been matched
 					if (pairsMatched == uniqueCount)
 					{
 						Toast toast = Toast.makeText(mContext, "You Win!",Toast.LENGTH_SHORT);
 						toast.show();
 					}
 				}
-				else
+				else // If they Don't match.
 				{
 					resetViews = true;
 					
@@ -282,6 +294,8 @@ public class MemoryGame extends Activity implements AnimationListener {
 			public void onClick(final View v) {
 				ViewGroup parent = (ViewGroup) v.getParent();
 				final int position = parent.indexOfChild(v);
+				
+				// If statement to see if this is the first tile in the pairing.
 				if (!isSecond)
 				{
 					resetViews = false;
@@ -299,7 +313,7 @@ public class MemoryGame extends Activity implements AnimationListener {
 					isSecond = true;
 					previousLoc = position;
 				}
-				else if (isSecond)
+				else if (isSecond) // If i is the Second
 				{
 					currentPosition = position;
 					viewToAnimate = (ImageView)v;
