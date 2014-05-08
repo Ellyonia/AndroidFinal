@@ -28,7 +28,7 @@ public class SizeSelection extends Activity {
 	Button startGame = (Button) findViewById(R.id.startGame);
 	
 	
-	
+	// Set up the Spinner to select the game size to be played.
 	 Spinner spinner = (Spinner) findViewById(R.id.gameSizePicker);
 	 spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 		    public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
@@ -41,7 +41,8 @@ public class SizeSelection extends Activity {
 		});
 	 
 	 
-	 
+	 // Start MemoryGame Activity when the start Game button is pushed.
+	 // Also send an intent with the gameSize variable inside.
 	 startGame.setOnClickListener(new OnClickListener(){
 
 		@Override
